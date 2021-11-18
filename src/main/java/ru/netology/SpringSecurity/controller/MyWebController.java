@@ -1,27 +1,41 @@
 package ru.netology.SpringSecurity.controller;
 
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.security.RolesAllowed;
 
 @RestController
 public class MyWebController {
 
-    //this endpoint without authenticated
-    @GetMapping("/account")
-    private String hello(){
-       return "Hello from user account!";
+    @GetMapping("/my-account")
+    @PreAuthorize("@validationService.isValid(#username)")
+    public String myAccount(String username) {
+        return "Welcome " + username;
     }
 
-    //this endpoint only with authenticated
+    @GetMapping("/account")
+    @Secured("ROLE_READ")
+    private String hello() {
+        return "Hello from user account!";
+    }
+
+
     @GetMapping("/account-edit")
-    private String edit(){
+    @RolesAllowed("ROLE_WRITE")
+    private String edit() {
         return "Welcome to account options!";
     }
 
-    //this endpoint only with authenticated
+
     @GetMapping("/database")
-    private String dataAccess(){
+    @PreAuthorize("hasRole('WRITE') or hasRole('DELETE')")
+    private String dataAccess() {
         return "Welcome to database!";
     }
+
 
 }
